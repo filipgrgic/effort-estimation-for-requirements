@@ -1,0 +1,1 @@
+MODEL_NAME = "hf.co/Qwen/Qwen3-8B-GGUF:Q4_K_M"
