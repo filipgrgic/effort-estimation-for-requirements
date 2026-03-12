@@ -1,7 +1,13 @@
-from pipeline.extraction import extract_requirements
+from pipeline.extractor import extract_requirements
+from pipeline.chunker import chunk_text
+
 
 def run_pipeline(text: str) -> str:
-    result = extract_requirements(text)
+    chunks = chunk_text(text)
+    result = []
+
+    for chunk in chunks:
+        result.extend(extract_requirements(chunk))
 
     s = ""
     for r in result:
