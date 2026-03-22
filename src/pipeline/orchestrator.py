@@ -1,5 +1,6 @@
 from pipeline.extractor import extract_requirements
 from pipeline.chunker import chunk_text
+from config import MAX_CHARS
 
 
 def run_pipeline(text: str) -> str:

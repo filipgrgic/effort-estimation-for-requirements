@@ -2,29 +2,42 @@ from config import MAX_CHARS
 
 
 def chunk_text(text: str) -> list[str]:
-    paragraphs = [p for p in text.split("\n\n") if p.strip()]
+    result = []
+    if len(text) > MAX_CHARS:
+        result = chunk_by_str(text, "\n\n")
+    else:
+        result.append(text)
+    return result
+
+
+def chunk_by_str(text: str, split_by: str) -> list[str]:
+    chunks = [c for c in text.split(split_by) if c.strip()]
 
     compact = []
     i = 0
-    size = len(paragraphs)
+    size = len(chunks)
     while i < size:
-        p = paragraphs[i]
+        c = chunks[i]
 
-        if len(p) > MAX_CHARS:
-            compact.extend(split_paragraph(p))
+        if len(c) > MAX_CHARS:
+            if split_by == "\n\n":
+                compact.extend(chunk_by_str(c, "\n"))
+            elif split_by == "\n":
+                compact.extend(chunk_by_str(c, ". "))
+            else:
+                hard_split = [c[i : i + MAX_CHARS] for i in range(0, len(c), MAX_CHARS)]
+                compact.extend(hard_split)
             i += 1
             continue
 
-        c = 1
-        while i + c < size and len(p) + 2 + len(paragraphs[i + c]) <= MAX_CHARS:
-            p += "\n\n" + paragraphs[i + c]
-            c += 1
-        compact.append(p)
-        i += c
+        count = 1
+        while (
+            i + count < size
+            and len(c) + len(split_by) + len(chunks[i + count]) <= MAX_CHARS
+        ):
+            c += split_by + chunks[i + count]
+            count += 1
+        compact.append(c)
+        i += count
 
     return compact
-
-
-def split_paragraph(p: str) -> list[str]:
-    # TODO
-    return

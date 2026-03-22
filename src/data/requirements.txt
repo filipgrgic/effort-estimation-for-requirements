@@ -1,25 +1,206 @@
-Online Library System
+Online Library System Specification
 
-The system shall allow users to create an account using their email address and a password.
 
-Users shall be able to log in and log out of the system.
+1 Overview
 
-The system shall allow users to search for books by title, author, or ISBN.
+The goal of this system is to provide a web-based library management platform that allows users to search, borrow, reserve, and manage books in an online catalog. The system shall support both physical books and digital media items.
 
-Users shall be able to borrow available books and return borrowed books.
+Users shall be able to create accounts using their email address and a password. The system shall validate email addresses during registration. Accounts should only become active after email verification.
 
-The system shall send an email notification to the user when a borrowed book is overdue.
+
+
+2 User Accounts
+
+REQ-1 The system shall allow users to create an account.
+
+REQ-2 The system shall allow users to log in using their registered email address and password.
+
+REQ-3 Users shall be able to log out of the system.
+
+The system shall allow users to reset their password via email verification.
+
+The system should enforce configurable password complexity requirements.
+
+User passwords must be stored using secure hashing algorithms.
+
+
+
+3 Catalog Browsing and Search
+
+The system shall allow users to search for books by title, author, keyword, category, or ISBN.
+
+Search results should be displayed within two seconds under normal operating conditions.
+
+Users should be able to filter search results by category, publication year, language, and availability.
+
+Search results shall be ranked by relevance.
+
+The system shall highlight matched keywords in search results.
+
+The system shall support pagination of search results.
+
+
+
+4 Book Information
+
+The system shall display detailed information about each book including:
+
+title  
+author  
+ISBN  
+publisher  
+publication year  
+language  
+category  
+availability status  
+
+The system shall support multiple physical copies of the same book.
+
+Each copy shall have a unique inventory identifier.
+
+
+
+5 Borrowing
+
+Users shall be able to borrow available books.
+
+The system shall prevent users from borrowing books that are already checked out.
+
+The system shall store the borrowing date and due date for each borrowed book.
+
+Users shall be able to return borrowed books.
+
+The system shall update the availability status of the book after return.
 
 The system shall display a list of currently borrowed books for each user.
 
-The system shall support at least 1000 concurrent users without performance degradation.
 
-Search results should be displayed within 2 seconds under normal operating conditions.
 
-User passwords must be stored using secure hashing.
+6 Reservations
 
-The system must comply with the GDPR data protection regulations.
+Users shall be able to reserve books that are currently unavailable.
+
+The system shall maintain a reservation queue.
+
+When a reserved book becomes available the system shall notify the next user in the queue.
+
+Reservations should expire automatically if a book is not collected within the configured reservation period.
+
+
+
+7 Notifications
+
+The system shall send email notifications when:
+
+• a borrowed book becomes overdue  
+• a reservation becomes available  
+• a password reset is requested  
+
+The system should retry sending notifications if delivery fails.
+
+The system shall store notification delivery status.
+
+
+
+8 Fees and Payments
+
+The system shall calculate overdue fees automatically.
+
+Users shall be able to view their outstanding fees.
+
+The system shall allow users to pay overdue fees.
+
+The system shall store payment history for each user.
+
+Librarians shall be able to waive fees when authorized.
+
+
+
+9 Administration
+
+Librarians shall be able to add new books to the catalog.
+
+Librarians shall be able to update book information.
+
+Librarians shall be able to remove books that are no longer part of the collection.
+
+Administrators shall be able to configure system settings.
+
+Administrators shall be able to define borrowing limits for users.
+
+Administrators shall be able to configure overdue fee rules.
+
+
+
+10 Reporting
+
+The system shall provide reports including:
+
+most borrowed books  
+overdue items  
+active members  
+fee statistics  
+
+Reports shall support filtering by date range.
+
+Reports shall be exportable as CSV files.
+
+
+
+11 Security
+
+The system shall use HTTPS for all communication.
+
+The system shall log authentication attempts.
+
+The system shall lock accounts after repeated failed login attempts.
+
+The system shall record security-relevant events for auditing.
+
+
+
+12 Privacy and Data Protection
+
+The system must comply with GDPR data protection regulations.
+
+The system shall store only the minimum required personal data.
+
+Users shall be able to request deletion of their account.
+
+The system shall support export of personal data upon request.
+
+
+
+13 Performance
+
+The system shall support at least 1000 concurrent users.
+
+Normal page requests should be processed within two seconds.
+
+Borrow and return operations should complete within one second.
+
+The system should remain responsive while reports are generated.
+
+
+
+14 System Constraints
 
 The application must run on Linux servers.
 
 The system shall use PostgreSQL as the database.
+
+The system shall support containerized deployment environments.
+
+The system shall support automated daily backups.
+
+The system shall support restoration from backups.
+
+
+
+15 Future Extensions
+
+The system should allow integration with external catalog services.
+
+The system should support additional media types such as audiobooks and e-books.
+
+The system should allow future integration with mobile applications.
