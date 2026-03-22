@@ -1,24 +1,21 @@
 import ollama
 from config import MODEL_NAME
 
+
 def send_to_model(prompt: str) -> str:
     try:
         response = ollama.chat(
-            model=MODEL_NAME,
-            messages = [
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
+            model=MODEL_NAME, messages=[{"role": "user", "content": prompt}]
         )
 
         return response["message"]["content"]
     except Exception as e:
         return f"Error while calling model:{e}"
-    
+
+
 def extract_prompt(text: str) -> str:
-    return send_to_model(f"""
+    return send_to_model(
+        f"""
 You are an assistant that extracts software requirements from text.
 
 Task:
@@ -31,8 +28,6 @@ Your entire response must be valid JSON only. Do not include explanations or add
 Each requirement must follow this structure:
 
 {{
-  "id": string,
-  "title": string,
   "description": string,
   "type": "functional" | "non_functional" | "constraint"
 }}
@@ -41,8 +36,6 @@ Example output:
 
 [
   {{
-    "id": "REQ-1",
-    "title": "User login",
     "description": "The system shall allow users to log in using email and password.",
     "type": "functional"
   }}
@@ -51,11 +44,11 @@ Example output:
 Rules:
 - Extract every requirement mentioned in the text.
 - Each requirement must be a separate JSON object.
-- The "title" should be a short summary.
 - The "description" should contain the full requirement.
 - The "type" must be exactly one of: "functional", "non_functional", "constraint".
 - If no requirements are found, return: []
 
 Text to analyze:
 {text}
-""")
+"""
+    )
