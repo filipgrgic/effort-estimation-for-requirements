@@ -7,7 +7,9 @@ def read_file(filepath: str) -> str:
     return content
 
 
-text = read_file("src/data/requirements.txt")
+text = read_file("src/data/input.txt")
 result = run_pipeline(text)
 
-print(result)
+for r in result:
+    print(f"description: {r.description}\n")
+    print(f"type: {r.type.value}\n\n")
