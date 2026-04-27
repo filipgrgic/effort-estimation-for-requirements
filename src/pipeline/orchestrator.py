@@ -1,19 +1,23 @@
 from pipeline.extractor import extract_requirements
 from pipeline.chunker import chunk_text
 from pipeline.merger import merge_requirements
+from estimation.size_estimator import estimate_size
 from schema.models import Requirement
 
 
-def run_pipeline(text: str) -> list[Requirement]:
+def run_pipeline(text: str) -> float:
     chunks = chunk_text(text)
     extracted = []
 
     for chunk in chunks:
         extracted.extend(extract_requirements(chunk))
 
-    result = merge_requirements(extracted)
+    reqs = merge_requirements(extracted)
+    normalized_reqs = normalize(reqs)
 
-    return normalize(result)
+    size = estimate_size(normalized_reqs)
+
+    return size
 
 
 def normalize(requirements: list[Requirement]) -> list[Requirement]:

@@ -9,7 +9,4 @@ def read_file(filepath: str) -> str:
 
 text = read_file("src/data/input.txt")
 result = run_pipeline(text)
-
-for r in result:
-    print(f"description: {r.description}\n")
-    print(f"type: {r.type.value}\n\n")
+print(f"Estimated size: {result} KSLOC\n")

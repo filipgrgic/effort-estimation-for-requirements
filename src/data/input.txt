@@ -1,7 +1,3 @@
-9 Administration
-Online Library System Specification
-
-
 1 Overview
 
 The goal of this system is to provide a web-based library management platform that allows users to search, borrow, reserve, and manage books in an online catalog. The system shall support both physical books and digital media items.
