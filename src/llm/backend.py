@@ -16,8 +16,7 @@ def send_to_model(prompt: str) -> str:
 
 
 def extract_prompt(text: str) -> str:
-    return send_to_model(
-        f"""
+    return send_to_model(f"""
 You are an assistant that extracts software requirements from text.
 
 Task:
@@ -52,13 +51,11 @@ Rules:
 
 Text to analyze:
 {text}
-"""
-    )
+""")
 
 
 def merge_prompt(text: str) -> str:
-    return send_to_model(
-        f"""
+    return send_to_model(f"""
 You are an assistant that merges software requirements.
 
 Task:
@@ -97,13 +94,11 @@ Rules:
 
 Input JSON:
 {text}
-"""
-    )
+""")
 
 
 def extract_user_functions_prompt(text: str) -> str:
-    return send_to_model(
-        f"""
+    return send_to_model(f"""
 You are an assistant that analyzes functional software requirements and extracts COCOMO II user function types.
 
 Task:
@@ -245,16 +240,64 @@ Output:
 
 Input text:
 {text}
-"""
-    )
+""")
 
 
-def determine_complexity_prompt(funct_reqs: str, ufs: str) -> str:
+def extract_user_function_components(funct_reqs: str, ufs: str) -> str:
     # TODO: Finish prompt
-    return send_to_model(
-        f"""
+    return send_to_model(f"""
+You are an assistant that analyzes functional software requirements and their COCOMO II user functions, and extracts data elements, record elements, and referenced file types.
+
+Task:
+For each user function listed in the input text, extract all data elements, record elements, and referenced file types. Use the original requirements from which the user functions were derived as evidence.
+
+User function types:
+- ILF: Data that the system stores, uses, and manages internally.
+- EIF: Data that is managed by an external system and used by the system, but not modified by it.
+- EI: Input from outside the system that creates, modifies, or deletes internal data.
+- EO: Output for which data is processed, combined, calculated, or derived before being presented.
+- EQ: A request where an input directly leads to an output without modifying internal data and without additional processing or calculation.
+
+Data Element:
+A single user-recognizable data field in an input or output.
+
+Example:
+The user enters name, address, and date of birth. The system then displays the order number.
+
+4 Data Elements:
+- Name
+- Address
+- Date of birth
+- Order number
+
+Record Element:
+A logically distinguishable subgroup within a stored object.
+
+Example:
+A database stores customers. A customer consists of master data, contact data, and contract data.
+
+3 Record Elements:
+- Master data
+- Contact data
+- Contract data
+
+File Type Referenced:
+A distinct data object that a function reads or modifies, regardless of whether it is internal (ILF) or external (EIF).
+
+Example:
+The system creates an order based on customer data and product data.
+
+3 File Types Referenced:
+- Customers
+- Products
+- Orders
 
 Output format:
+Return a valid JSON object containing the user functions and their extracted data elements, record elements, and referenced file types.
+Your entire response must be valid JSON only. Do not include explanations or additional text.
+
+The JSON object must follow this structure:
+
 {{
   "ILF": [
     {{
@@ -292,5 +335,124 @@ Output format:
     }}
   ]
 }}
-"""
-    )
+
+Rules:
+- Only use information from the input requirements and the listed user functions.
+- Do not invent, infer, generalize, or add new elements.
+- Only extract elements that are explicitly stated or clearly identifiable in the requirements.
+- Do not extract technical implementation details unless they are user-recognizable business data.
+- Do not count the same element multiple times within the same user function.
+- Keep separate user functions separate.
+- Do not merge elements from different user functions.
+- Use short and clear names.
+- Preserve the input language where possible.
+- If no elements can be identified for a field, return an empty array.
+- If a category has no user functions, return an empty array for that category.
+- Always return all five keys: "ILF", "EIF", "EI", "EO", "EQ".
+- Do not add any keys other than "ILF", "EIF", "EI", "EO", "EQ".
+- Your entire response must be valid JSON only.
+
+Classification rules:
+- For ILF and EIF, extract RET and DET.
+- For EI, EO, and EQ, extract FTR and DET.
+- RET means Record Element Type: a logically distinguishable subgroup within an ILF or EIF.
+- DET means Data Element Type: a unique user-recognizable data field.
+- FTR means File Type Referenced: a distinct ILF or EIF read or modified by an EI, EO, or EQ.
+- For ILF, DET contains the user-recognizable data fields stored in the internal data group.
+- For EIF, DET contains the user-recognizable data fields read from the external data group.
+- For EI, DET contains the input fields or control information provided by the user or external actor.
+- For EO, DET contains the output fields, calculated values, derived values, messages, or control information shown to the user or external actor.
+- For EQ, DET contains the input fields used for the request and the output fields directly retrieved and displayed.
+- For EI, FTR includes the internal data groups created, modified, or deleted, and any data groups read during the input process.
+- For EO, FTR includes the data groups read to generate, calculate, derive, aggregate, or format the output.
+- For EQ, FTR includes the data groups read to retrieve and display existing data.
+- Do not add FTR to ILF or EIF.
+- Do not add RET to EI, EO, or EQ.
+
+Extraction example:
+
+Requirement:
+The system stores customer data, including master data, contact data, and contract data. Master data includes customer number, name, and date of birth. Contact data includes address, email address, and phone number. Contract data includes contract number, contract type, and contract status. Users can create a customer by entering name, date of birth, address, email address, and phone number. The system can display customer details based on a customer number.
+
+User functions:
+{{
+  "ILF": [
+    {{
+      "description": "Customers"
+    }}
+  ],
+  "EIF": [],
+  "EI": [
+    {{
+      "description": "Create customer"
+    }}
+  ],
+  "EO": [],
+  "EQ": [
+    {{
+      "description": "Display customer details"
+    }}
+  ]
+}}
+
+Output:
+{{
+  "ILF": [
+    {{
+      "description": "Customers",
+      "RET": [
+        "Master data",
+        "Contact data",
+        "Contract data"
+      ],
+      "DET": [
+        "Customer number",
+        "Name",
+        "Date of birth",
+        "Address",
+        "Email address",
+        "Phone number",
+        "Contract number",
+        "Contract type",
+        "Contract status"
+      ]
+    }}
+  ],
+  "EIF": [],
+  "EI": [
+    {{
+      "description": "Create customer",
+      "FTR": [
+        "Customers"
+      ],
+      "DET": [
+        "Name",
+        "Date of birth",
+        "Address",
+        "Email address",
+        "Phone number"
+      ]
+    }}
+  ],
+  "EO": [],
+  "EQ": [
+    {{
+      "description": "Display customer details",
+      "FTR": [
+        "Customers"
+      ],
+      "DET": [
+        "Customer number",
+        "Customer details"
+      ]
+    }}
+  ]
+}}
+
+Input:
+User functions:
+{ufs}
+
+Original requirements:
+{funct_reqs}
+""")
