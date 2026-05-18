@@ -37,13 +37,13 @@ def estimate_size(reqs: list[Requirement]) -> float:
 # COMPLEXITY TABLE
 
 ILF_EIF = {
-    "RET": [(0, 1), (2, 5), (6, int("inf"))],
-    "DET": [(0, 19), (20, 50), (51, int("inf"))],
+    "RET": [(0, 1), (2, 5), (6, float("inf"))],
+    "DET": [(0, 19), (20, 50), (51, float("inf"))],
 }
 
 EO_EQ = {
-    "FTR": [(0, 1), (2, 3), (4, int("inf"))],
-    "DET": [(0, 5), (6, 19), (20, int("inf"))],
+    "FTR": [(0, 1), (2, 3), (4, float("inf"))],
+    "DET": [(0, 5), (6, 19), (20, float("inf"))],
 }
 
 complexity_table = {
@@ -52,8 +52,8 @@ complexity_table = {
     "EO": EO_EQ,
     "EQ": EO_EQ,
     "EI": {
-        "FTR": [(0, 1), (2, 3), (4, int("inf"))],
-        "DET": [(0, 4), (5, 15), (16, int("inf"))],
+        "FTR": [(0, 1), (2, 3), (4, float("inf"))],
+        "DET": [(0, 4), (5, 15), (16, float("inf"))],
     },
 }
 

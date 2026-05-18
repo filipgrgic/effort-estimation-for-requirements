@@ -5,7 +5,7 @@ from estimation.size_estimator import estimate_size
 from schema.models import Requirement
 
 
-def run_pipeline(text: str) -> float:
+def run_pipeline(text: str, sloc_factor: float) -> float:
     chunks = chunk_text(text)
     extracted = []
 
@@ -17,7 +17,7 @@ def run_pipeline(text: str) -> float:
 
     size = estimate_size(normalized_reqs)
 
-    return size
+    return size * sloc_factor
 
 
 def normalize(requirements: list[Requirement]) -> list[Requirement]:
