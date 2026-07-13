@@ -1,3 +1,4 @@
+from pathlib import Path
 from pipeline.orchestrator import run_pipeline
 from schema.languages import languages, categories
 
@@ -54,7 +55,10 @@ If the language is not listed, you can choose a category or enter a custom facto
     raise ValueError("Invalid selection.")
 
 
-text = read_file("src/data/input.txt")
+BASE_DIR = Path(__file__).resolve().parent
+INPUT_FILE = BASE_DIR / "data" / "input.txt"
+text = read_file(INPUT_FILE)
 sf = start_terminal()
 result = run_pipeline(text, sf) / 1000
 print(f"Estimated size: {result} KSLOC\n")
+

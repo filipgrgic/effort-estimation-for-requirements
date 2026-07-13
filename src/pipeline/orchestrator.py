@@ -2,6 +2,7 @@ from pipeline.extractor import extract_requirements
 from pipeline.chunker import chunk_text
 from pipeline.merger import merge_requirements
 from estimation.size_estimator import estimate_size
+from estimation.breakage_estimator import estimate_breakage
 from schema.models import Requirement
 
 
@@ -17,7 +18,9 @@ def run_pipeline(text: str, sloc_factor: float) -> float:
 
     size = estimate_size(normalized_reqs)
 
-    return size * sloc_factor
+    brak_factor = estimate_breakage(normalized_reqs)
+
+    return size * sloc_factor * brak_factor
 
 
 def normalize(requirements: list[Requirement]) -> list[Requirement]:

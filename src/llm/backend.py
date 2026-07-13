@@ -1,18 +1,50 @@
-import ollama
-from config import MODEL_NAME
+from config import (
+    MODEL_PATH,
+    CONTEXT_SIZE,
+    THREADS,
+    GPU_LAYERS,
+    TEMPERATURE,
+    MAX_TOKENS,
+)
+from llama_cpp import Llama
+
+_model = None
+
+
+def load_model() -> Llama:
+    global _model
+
+    if _model is not None:
+        return _model
+
+    try:
+        _model = Llama(
+            model_path=MODEL_PATH,
+            n_ctx=CONTEXT_SIZE,
+            n_threads=THREADS,
+            n_gpu_layers=GPU_LAYERS,
+            verbose=False,
+        )
+    except Exception as e:
+        raise RuntimeError("Could not load model") from e
+
+    return _model
 
 
 def send_to_model(prompt: str) -> str:
-    try:
-        response = ollama.chat(
-            model=MODEL_NAME, messages=[{"role": "user", "content": prompt}]
-        )
+    llm = load_model()
+    response = llm.create_chat_completion(
+        messages=[{"role": "user", "content": f"{prompt.rstrip()}\n\n/no_think"}],
+        temperature=TEMPERATURE,
+        max_tokens=MAX_TOKENS,
+    )
 
-        return response["message"]["content"]
+    cleaned_response = response["choices"][0]["message"]["content"]
+    cleaned_response = cleaned_response.split("</think>", 1)[
+        -1
+    ].strip()  # Remove the <think>-block in the response
 
-    except Exception as e:
-        print(f"Error while calling model: {type(e).__name__}: {e}")
-        raise
+    return cleaned_response
 
 
 def extract_prompt(text: str) -> str:
@@ -243,8 +275,7 @@ Input text:
 """)
 
 
-def extract_user_function_components(funct_reqs: str, ufs: str) -> str:
-    # TODO: Finish prompt
+def extract_user_function_components_prompt(funct_reqs: str, ufs: str) -> str:
     return send_to_model(f"""
 You are an assistant that analyzes functional software requirements and their COCOMO II user functions, and extracts data elements, record elements, and referenced file types.
 
@@ -456,3 +487,110 @@ User functions:
 Original requirements:
 {funct_reqs}
 """)
+
+
+def estimate_breakage_prompt(text: str) -> str:
+    return send_to_model(f"""
+You are an assistant that estimates the COCOMO II breakage factor, BRAK,
+from initial software requirements.
+
+Definition:
+BRAK is the estimated percentage of code that will be developed but later
+discarded because requirements evolve or change during development.
+
+A BRAK value of 10 means that for every 100 units of delivered code,
+an additional 10 units of code are expected to be developed and discarded
+because of requirements changes.
+
+Available information:
+You receive only the initial requirements.
+
+You do not know whether the requirements will actually change.
+Therefore, estimate the likely breakage conservatively by analyzing indicators
+in the requirements that could make later changes or redesign more likely.
+
+Possible indicators include:
+- ambiguous, vague, or incomplete requirements
+- conflicting or inconsistent requirements
+- undefined business rules
+- unresolved design or technology decisions
+- unclear system boundaries or responsibilities
+- external integrations whose behavior is not sufficiently specified
+- placeholders or provisional statements
+- requirements that are likely to affect many parts of the system if changed
+- future extensions that may require substantial changes to the initial
+  architecture
+
+Task:
+Estimate one project-wide BRAK percentage for the requirements below.
+
+Rules:
+- Estimate only code likely to be discarded because requirements may evolve,
+  change, become obsolete, or require substantial redesign during development.
+- Do not include additional effort that does not result from changing
+  requirements.
+- Do not include effort caused only by complexity, defects, testing,
+  documentation, low productivity, schedule pressure, maintenance,
+  reuse, or re-engineering.
+- Do not increase BRAK merely because the project is large or technically
+  difficult.
+- Performance, security, privacy, deployment, and reliability requirements
+  do not by themselves imply high breakage.
+- Configurable functionality does not by itself imply changing requirements.
+- Requirements explicitly described only as future extensions should normally
+  have little or no influence on BRAK unless they are likely to require major
+  architectural changes during the initial development.
+- Do not assume stakeholder instability, organizational problems, or changing
+  business processes unless the requirements contain indicators for them.
+- Treat ambiguous wording as a risk indicator, but not as proof that code will
+  be discarded.
+- Do not pretend to know that future changes will occur.
+- When evidence is limited, prefer a low and conservative estimate.
+- Avoid unsupported high estimates.
+- Use the complete set of requirements to produce one overall value.
+
+Estimation guidance:
+- 0 to 3 percent:
+  Requirements appear explicit, consistent, stable, and clearly scoped.
+
+- More than 3 to 8 percent:
+  Requirements appear mostly stable, with minor ambiguity or a small number
+  of unresolved details.
+
+- More than 8 to 15 percent:
+  Several requirements are unclear, incomplete, provisional, or dependent
+  on decisions that may cause moderate changes.
+
+- More than 15 to 30 percent:
+  There are significant unresolved requirements, conflicting statements,
+  unstable external dependencies, or a substantial risk of redesign.
+
+- More than 30 to 50 percent:
+  There is strong evidence that major parts of the implementation may need
+  to be changed or rebuilt.
+
+- More than 50 percent:
+  Exceptional. Use only when the initial requirements strongly indicate that
+  large parts of the implementation are provisional or likely to be replaced.
+
+Output format:
+Return a valid JSON object only.
+Do not include Markdown, explanations, comments, or additional text.
+
+The JSON object must follow this exact structure:
+
+{{
+  "breakage": number
+}}
+
+Output rules:
+- Do not add any other keys.
+- "breakage" must be a JSON number, not a string.
+- "breakage" must be between 0 and 100.
+- Use at most one decimal place.
+- Values above 30 require strong evidence in the requirements.
+- Values above 50 require exceptional evidence in the requirements.
+
+Requirements:
+{text}                   
+    """)
