@@ -4,12 +4,17 @@ from schema.models import Requirement, RequirementType
 import json
 
 
-def estimate_size(reqs: list[Requirement]) -> float:
+def estimate_size(reqs: list[Requirement]) -> tuple[int, int]:
     funct_reqs = ""
     for req in reqs:
         # Only functional requirements are relevant for function points
         if req.type == RequirementType.FUNCTIONAL:
             funct_reqs += "description: " + req.description + "\n"
+
+    if not funct_reqs:
+        raise ValueError(
+            "No functional requirements were found for Function Point analysis."
+        )
 
     ufs_json = extract_user_functions_prompt(funct_reqs)
     components_json = extract_user_function_components_prompt(funct_reqs, ufs_json)
@@ -17,18 +22,26 @@ def estimate_size(reqs: list[Requirement]) -> float:
     components = json.loads(components_json)
 
     ufp = 0
+    fallback_count = 0
 
     for uft in ["ILF", "EIF", "EI", "EO", "EQ"]:
         referenced = "RET" if uft in ["ILF", "EIF"] else "FTR"
         for r in components[uft]:
-            count_referenced = len(r[referenced])
-            count_det = len(r["DET"])
+            count_referenced = count_unique(r[referenced])
+            count_det = count_unique(r["DET"])
+
+            fallback_used = False
 
             if count_det == 0:
-                raise ValueError(f"{uft}: '{r['description']}' contains no DET.")
+                count_det = 1
+                fallback_used = True
 
             if referenced == "RET" and count_referenced == 0:
-                raise ValueError(f"{uft}: '{r['description']}' contains no RET.")
+                count_referenced = 1
+                fallback_used = True
+
+            if fallback_used:
+                fallback_count += 1
 
             x = get_index(count_referenced, complexity_table[uft][referenced])
             y = get_index(count_det, complexity_table[uft]["DET"])
@@ -37,7 +50,11 @@ def estimate_size(reqs: list[Requirement]) -> float:
 
             ufp += complexity_weights[uft][complexity]
 
-    return ufp
+    return ufp, fallback_count
+
+
+def count_unique(values: list[str]) -> int:
+    return len({value.strip().casefold() for value in values if value.strip()})
 
 
 # COMPLEXITY TABLE
@@ -75,7 +92,7 @@ complexity_weights = {
 }
 
 
-def get_index(value: int, tuples: list[tuple[int, int]]) -> int:
+def get_index(value: int, tuples: list[tuple[int, int | float]]) -> int:
     index = 0
     for low, upper in tuples:
         if low <= value and value <= upper:

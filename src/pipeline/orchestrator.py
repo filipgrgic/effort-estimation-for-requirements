@@ -6,7 +6,7 @@ from estimation.breakage_estimator import estimate_breakage
 from schema.models import Requirement
 
 
-def run_pipeline(text: str, sloc_factor: float) -> float:
+def run_pipeline(text: str, sloc_factor: float) -> tuple[float, int]:
     chunks = chunk_text(text)
     extracted = []
 
@@ -18,9 +18,15 @@ def run_pipeline(text: str, sloc_factor: float) -> float:
 
     size = estimate_size(normalized_reqs)
 
-    brak_factor = estimate_breakage(normalized_reqs)
+    brak_percentage = estimate_breakage(normalized_reqs)
+    if brak_percentage < 0 or brak_percentage > 100:
+        raise ValueError(
+            f"Breakage value must be between 0 and 100, received {brak_percentage}."
+        )
 
-    return size * sloc_factor * brak_factor
+    estimated_sloc = size[0] * sloc_factor * (1 + brak_percentage / 100)
+
+    return estimated_sloc, size[1]
 
 
 def normalize(requirements: list[Requirement]) -> list[Requirement]:

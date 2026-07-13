@@ -3,7 +3,7 @@ from pipeline.orchestrator import run_pipeline
 from schema.languages import languages, categories
 
 
-def read_file(filepath: str) -> str:
+def read_file(filepath: str | Path) -> str:
     with open(filepath, "r", encoding="utf-8") as file:
         content = file.read()
     return content
@@ -55,10 +55,15 @@ If the language is not listed, you can choose a category or enter a custom facto
     raise ValueError("Invalid selection.")
 
 
-BASE_DIR = Path(__file__).resolve().parent
-INPUT_FILE = BASE_DIR / "data" / "input.txt"
-text = read_file(INPUT_FILE)
-sf = start_terminal()
-result = run_pipeline(text, sf) / 1000
-print(f"Estimated size: {result} KSLOC\n")
+def main():
+    BASE_DIR = Path(__file__).resolve().parent
+    INPUT_FILE = BASE_DIR / "data" / "input.txt"
+    text = read_file(INPUT_FILE)
+    sf = start_terminal()
+    result = run_pipeline(text, sf)
+    print(f"Estimated size: {result[0] / 1000:.3f} KSLOC\n")
+    print(f"Functions using fallback values: {result[1]}\n")
 
+
+if __name__ == "__main__":
+    main()
