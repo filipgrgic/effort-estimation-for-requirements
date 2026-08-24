@@ -3,7 +3,6 @@ from llm.backend import estimate_breakage_prompt
 import json
 
 
-def estimate_breakage(reqs: list[Requirement]) -> float:
-    text = json.dumps([req.model_dump() for req in reqs], indent=2)
-    response = json.loads(estimate_breakage_prompt(text))
+def estimate_breakage(reqs: str) -> float:
+    response = json.loads(estimate_breakage_prompt(reqs))
     return float(response["breakage"])

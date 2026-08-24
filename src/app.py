@@ -61,7 +61,7 @@ def main():
     text = read_file(INPUT_FILE)
     sf = start_terminal()
     result = run_pipeline(text, sf)
-    print(f"Estimated size: {result[0] / 1000:.3f} KSLOC\n")
+    print(f"Estimated effort in Person Months (PM): {result[0]:.3f} PM\n")
     print(f"Functions using fallback values: {result[1]}\n")
 
 
