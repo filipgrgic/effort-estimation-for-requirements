@@ -4,12 +4,30 @@ from schema.languages import languages, categories
 
 
 def read_file(filepath: str | Path) -> str:
+    """
+    Reads the contents of a file.
+
+    Args:
+        filepath: Path to the file to read.
+
+    Returns:
+        The contents of the file as a string.
+    """
     with open(filepath, "r", encoding="utf-8") as file:
         content = file.read()
     return content
 
 
 def start_terminal() -> float:
+    """
+    Prompts the user to select an SLOC/UFP conversion factor.
+
+    Returns:
+        The selected SLOC/UFP factor.
+
+    Raises:
+        ValueError: If the input is invalid or the selected factor is not greater than 0.
+    """
     print(f"""
 The program needs to convert Unadjusted Function Points to Source Lines of Code.
 The factor is different for every programming language.
@@ -55,14 +73,18 @@ If the language is not listed, you can choose a category or enter a custom facto
     raise ValueError("Invalid selection.")
 
 
-def main():
+def main() -> None:
+    """
+    Runs the effort estimation pipeline and prints the results.
+    """
     BASE_DIR = Path(__file__).resolve().parent
     INPUT_FILE = BASE_DIR / "data" / "input.txt"
     text = read_file(INPUT_FILE)
     sf = start_terminal()
     result = run_pipeline(text, sf)
     print(f"Estimated effort in Person Months (PM): {result[0]:.3f} PM\n")
-    print(f"Functions using fallback values: {result[1]}\n")
+    print(f"AI reduction factor: {result[1]}\n")
+    print(f"Functions using fallback values: {result[2]}\n")
 
 
 if __name__ == "__main__":

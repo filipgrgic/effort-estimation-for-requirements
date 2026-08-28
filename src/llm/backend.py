@@ -12,6 +12,15 @@ _model = None
 
 
 def load_model() -> Llama:
+    """
+    Loads and caches the Llama model.
+
+    Returns:
+        The loaded Llama model.
+
+    Raises:
+        RuntimeError: If the model cannot be loaded.
+    """
     global _model
 
     if _model is not None:
@@ -32,6 +41,15 @@ def load_model() -> Llama:
 
 
 def send_to_model(prompt: str) -> str:
+    """
+    Sends a prompt to the model and returns its response.
+
+    Args:
+        prompt: Prompt to send to the model.
+
+    Returns:
+        The response from the model.
+    """
     llm = load_model()
     response = llm.create_chat_completion(
         messages=[{"role": "user", "content": f"{prompt.rstrip()}\n\n/no_think"}],
@@ -48,6 +66,15 @@ def send_to_model(prompt: str) -> str:
 
 
 def extract_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to extract software requirements from text.
+
+    Args:
+        text: Text to extract requirements from.
+
+    Returns:
+        The model response containing the extracted requirements as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that extracts software requirements from text.
 
@@ -87,6 +114,15 @@ Text to analyze:
 
 
 def merge_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to merge similar software requirements from text.
+
+    Args:
+        text: JSON string containing the requirements to merge.
+
+    Returns:
+        The model response containing the merged requirements as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that merges software requirements.
 
@@ -130,6 +166,15 @@ Input JSON:
 
 
 def extract_user_functions_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to extract COCOMO II user functions from text.
+
+    Args:
+        text: JSON string containing requirements to analyze.
+
+    Returns:
+        The model response containing the extracted user functions as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that analyzes functional software requirements and extracts COCOMO II user function types.
 
@@ -276,6 +321,16 @@ Input text:
 
 
 def extract_user_function_components_prompt(funct_reqs: str, ufs: str) -> str:
+    """
+    Sends a prompt to the model to extract components of COCOMO II user functions.
+
+    Args:
+        funct_reqs: JSON string containing the functional requirements.
+        ufs: JSON string containing the COCOMO II user functions.
+
+    Returns:
+        The model response containing the extracted RET, DET, and FTR values as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that analyzes functional software requirements and their COCOMO II user functions, and extracts data elements, record elements, and referenced file types.
 
@@ -490,6 +545,15 @@ Original requirements:
 
 
 def estimate_breakage_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the COCOMO II breakage percentage.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated breakage percentage as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that estimates the COCOMO II breakage factor, BRAK,
 from initial software requirements.
@@ -597,6 +661,17 @@ Requirements:
 
 
 def estimate_prec_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the component ratings of the
+    COCOMO II scale driver PREC.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated PREC component ratings
+        as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the four component ratings used to determine
 the COCOMO II scale driver Precedentedness (PREC).
@@ -742,6 +817,17 @@ Requirements:
 
 
 def estimate_flex_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the component ratings of the
+    COCOMO II scale driver FLEX.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated FLEX component ratings
+        as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the three component ratings used to determine
 the COCOMO II scale driver Development Flexibility (FLEX).
@@ -862,6 +948,17 @@ Requirements:
 
 
 def estimate_resl_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the component ratings of the
+    COCOMO II scale driver RESL.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated RESL component ratings
+        as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the seven component ratings used to determine
 the COCOMO II scale driver Architecture / Risk Resolution (RESL).
@@ -1089,6 +1186,16 @@ Requirements:
 
 
 def estimate_rely_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the rating of the
+    COCOMO II cost driver RELY.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated RELY rating as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the COCOMO II cost driver
 Required Software Reliability (RELY).
@@ -1185,6 +1292,16 @@ Requirements:
 
 
 def estimate_data_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the rating of the
+    COCOMO II cost driver DATA.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated DATA rating as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the COCOMO II cost driver
 Data Base Size (DATA).
@@ -1281,6 +1398,16 @@ Requirements:
 
 
 def estimate_docu_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the rating of the
+    COCOMO II cost driver DOCU.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated DOCU rating as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the COCOMO II cost driver
 Documentation Match to Life-Cycle Needs (DOCU).
@@ -1377,6 +1504,17 @@ Requirements:
 
 
 def estimate_cplx_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the component ratings of the
+    COCOMO II cost driver CPLX.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated CPLX component ratings
+        as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the five component ratings used to determine
 the COCOMO II cost driver Product Complexity (CPLX).
@@ -1609,6 +1747,16 @@ Requirements:
 
 
 def estimate_ruse_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the rating of the
+    COCOMO II cost driver RUSE.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated RUSE rating as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the COCOMO II cost driver
 Required Reusability (RUSE).
@@ -1708,6 +1856,16 @@ Requirements:
 
 
 def estimate_time_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the rating of the
+    COCOMO II cost driver TIME.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated TIME rating as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the COCOMO II cost driver
 Execution Time Constraint (TIME).
@@ -1805,6 +1963,16 @@ Requirements:
 
 
 def estimate_stor_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the rating of the
+    COCOMO II cost driver STOR.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated STOR rating as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the COCOMO II cost driver
 Main Storage Constraint (STOR).
@@ -1900,6 +2068,16 @@ Requirements:
 
 
 def estimate_pvol_prompt(text: str) -> str:
+    """
+    Sends a prompt to the model to estimate the rating of the
+    COCOMO II cost driver PVOL.
+
+    Args:
+        text: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The model response containing the estimated PVOL rating as a JSON string.
+    """
     return send_to_model(f"""
 You are an assistant that assesses the COCOMO II cost driver
 Platform Volatility (PVOL).

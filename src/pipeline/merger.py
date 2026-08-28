@@ -4,6 +4,15 @@ import json
 
 
 def merge_requirements(requirements: list[Requirement]) -> list[Requirement]:
+    """
+    Merges similar requirements in a list of requirements.
+
+    Args:
+        requirements: List of requirements to merge.
+
+    Returns:
+        A consolidated list of requirements with similar entries merged.
+    """
     text = json.dumps([req.model_dump() for req in requirements], indent=2)
     # The following print statements in lines 9, 10, 12 and 13 are for debugging purposes and can be removed in production.
     # print("------ MERGE SEND TO MODEL ------")

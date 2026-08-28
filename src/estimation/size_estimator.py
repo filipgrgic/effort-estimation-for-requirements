@@ -5,6 +5,20 @@ import json
 
 
 def estimate_size(reqs: list[Requirement]) -> tuple[int, int]:
+    """
+    Estimates the unadjusted function points based on a list of
+    software requirements.
+
+    Args:
+        reqs: List of software requirements to analyze.
+
+    Returns:
+        A tuple containing the estimated unadjusted function points and
+        the number of fallback values used.
+
+    Raised:
+        ValueError: If no functional requirements are found.
+    """
     funct_reqs = ""
     for req in reqs:
         # Only functional requirements are relevant for function points
@@ -54,7 +68,40 @@ def estimate_size(reqs: list[Requirement]) -> tuple[int, int]:
 
 
 def count_unique(values: list[str]) -> int:
+    """
+    Counts the number of unique non-empty strings in a list,
+    ignoring leading/trailing whitespaces and case.
+
+    Args:
+        values: List of strings to count.
+
+    Returns:
+        The number of unique non-empty strings.
+    """
     return len({value.strip().casefold() for value in values if value.strip()})
+
+
+def get_index(value: int, tuples: list[tuple[int, int | float]]) -> int:
+    """
+    Finds the index of the range that contains a given value.
+
+    Args:
+        value: Value to find the matching range for.
+        tuples: List of tuples representing lower and upper bounds.
+
+    Returns:
+        The index of the range containing the value.
+
+    Raises:
+        ValueError: If the value does not fall within any range.
+    """
+    index = 0
+    for low, upper in tuples:
+        if low <= value and value <= upper:
+            return index
+        else:
+            index += 1
+    raise ValueError(f"No index found for value: {value}")
 
 
 # COMPLEXITY TABLE
@@ -90,13 +137,3 @@ complexity_weights = {
     "EO": [4, 5, 7],
     "EQ": [3, 4, 6],
 }
-
-
-def get_index(value: int, tuples: list[tuple[int, int | float]]) -> int:
-    index = 0
-    for low, upper in tuples:
-        if low <= value and value <= upper:
-            return index
-        else:
-            index += 1
-    raise ValueError(f"No index found for value: {value}")

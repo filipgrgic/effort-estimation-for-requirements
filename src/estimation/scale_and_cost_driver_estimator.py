@@ -14,7 +14,17 @@ from llm.backend import (
 import json, math
 
 
-def estimate_scaling_drivers(reqs: str) -> float:
+def estimate_scale_drivers(reqs: str) -> float:
+    """
+    Estimates the COCOMO II scale drivers PREC, FLEX, and RESL.
+    Nominal values are used for the scale drivers TEAM and PMAT.
+
+    Args:
+        reqs: JSON string containing the software requirements to analyze.
+
+    Returns:
+        The calculated COCOMO II scale exponent.
+    """
     sum = 0
 
     prec_json = json.loads(estimate_prec_prompt(reqs))
@@ -36,6 +46,21 @@ def estimate_scaling_drivers(reqs: str) -> float:
 
 
 def estimate_cost_drivers_and_ai_factor(reqs: str) -> tuple[float, int]:
+    """
+    Estimates the COCOMO II cost drivers RCPX, RUSE, and PDIF and determines
+    the AI reduction factor based on CPLX.
+    Nominal multipliers are used for the cost drivers PERS, PREX, FCIL, and SCED.
+
+    Args:
+        reqs: JSON string containing the software requirements to analyze.
+
+    Returns:
+        A tuple containing the combined COCOMO II cost driver multiplier and
+        the AI reduction factor.
+
+    Raises:
+        ValueError: If the RUSE rating is outside the range from 2 to 6.
+    """
     prod = 1
 
     # RCPX:
@@ -87,6 +112,18 @@ def estimate_cost_drivers_and_ai_factor(reqs: str) -> tuple[float, int]:
 
 
 def calculate_average(json: dict, nominal: int) -> int:
+    """
+    Calculates the average of the dictionary values.
+    None values are replaced with the nominal value before calculating the
+    average. The result is then rounded using the nominal value.
+
+    Args:
+        json: Dictionary containing the values to average.
+        nominal: Nominal value used for missing values and rounding.
+
+    Returns:
+        The rounded average of the dictionary values.
+    """
     sum = 0
     for v in json.values():
         if v is not None:
@@ -98,6 +135,16 @@ def calculate_average(json: dict, nominal: int) -> int:
 
 
 def round_to_nominal(x: float, nominal: int) -> int:
+    """
+    Rounds a number toward the nearest integer in the direction of the nominal value.
+
+    Args:
+        x: Number to round.
+        nominal: Nominal value that determines the rounding direction.
+
+    Returns:
+        The rounded integer.
+    """
     if not x.is_integer():
         if x < nominal:
             x = math.ceil(x)
@@ -108,10 +155,32 @@ def round_to_nominal(x: float, nominal: int) -> int:
 
 
 def nominal_if_none(value: int | None, nominal: int) -> int:
+    """
+    Returns the nominal value if value is None; otherwise, returns value.
+
+    Args:
+        value: Value to return if it is not None.
+        nominal: Nominal value to return if value is None.
+
+    Returns:
+        The provided value or the nominal value if value is None.
+    """
     return nominal if value is None else value
 
 
 def determine_rcpx_weight(sum: int) -> int:
+    """
+    Determines the index of the RCPX weight based on the COCOMO II rating table.
+
+    Args:
+        sum: Sum of the RCPX ratings.
+
+    Returns:
+        The index of the corresponding RCPX weight.
+
+    Raises:
+        ValueError: If the sum of the RCPX ratings is outside the range from 5 to 21.
+    """
     if sum < 5:
         raise ValueError("The sum of the RCPX Ratings must not be smaller than 5.")
     elif sum >= 5 and sum <= 6:
@@ -133,6 +202,18 @@ def determine_rcpx_weight(sum: int) -> int:
 
 
 def determine_pdif_weight(sum: int) -> int:
+    """
+    Determines the index of the PDIF weight based on the COCOMO II rating table.
+
+    Args:
+        sum: Sum of the PDIF ratings.
+
+    Returns:
+        The index of the corresponding PDIF weight.
+
+    Raises:
+        ValueError: If the sum of the PDIF ratings is outside the range from 8 to 17.
+    """
     if sum < 8:
         raise ValueError("The sum of the PDIF Ratings must not be smaller than 8.")
     elif sum == 8:
@@ -150,6 +231,15 @@ def determine_pdif_weight(sum: int) -> int:
 
 
 def determine_ai_reduction_factor(cplx: int) -> int:
+    """
+    Determines the AI reduction factor based on the CPLX rating.
+
+    Args:
+        cplx: CPLX rating used to determine the AI reduction factor.
+
+    Returns:
+        The corresponding AI reduction factor.
+    """
     if cplx <= 2:
         return 5
     elif cplx > 4:
