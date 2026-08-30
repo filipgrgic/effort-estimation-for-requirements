@@ -113,7 +113,7 @@ This project estimates software development effort based on initial software req
 1. Create and activate a Python virtual environment:
 
   ```bash
-  python3.11 -m venv venv
+  python -m venv venv
   source venv/bin/activate
   ```
 
@@ -355,28 +355,37 @@ pytest
 ## 11. Known Limitations
 
 1. **Requirement quality**
+   
    The estimation depends heavily on the quality, completeness, and clarity of the provided requirements.
 
 2. **LLM dependency**
+   
    Results may vary depending on the language model, quantization, and model configuration used.
 
 3. **LLM reliability**
+   
    The model may produce incorrect, inconsistent, or hallucinated classifications and estimations.
 
 4. **Limited context window**
+   
    Large requirement documents must be split into chunks, which can cause relevant context to be lost.
 
 5. **Chunking effects**
+    
    Related requirements may be separated into different chunks, making dependencies or duplicates harder to detect.
 
 6. **Requirement merging and normalization**
+    
    Similar requirements may be merged incorrectly, while duplicates may remain undetected.
 
 7. **Fixed COCOMO II parameters**
+    
    Some COCOMO II scale and cost drivers are set to `Nominal` because they cannot be reliably derived from requirements alone.
 
 8. **Missing team and organizational information**
+    
    Developer experience, team capabilities, tool support, and organizational processes cannot be fully inferred from initial software requirements and are therefore only partially represented by the estimation.
 
 9. **Heuristic AI reduction factor**
+    
    The AI reduction factor is not an established part of COCOMO II and is not based on extensive empirical calibration. Since it directly affects the final effort estimate, different factor values can significantly change the result.
