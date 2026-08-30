@@ -82,7 +82,7 @@ def main() -> None:
     text = read_file(INPUT_FILE)
     sf = start_terminal()
     result = run_pipeline(text, sf)
-    print(f"Estimated effort in Person Months (PM): {result[0]:.3f} PM\n")
+    print(f"\nEstimated effort in Person Months (PM): {result[0]:.3f} PM\n")
     print(f"AI reduction factor: {result[1]}\n")
     print(f"Functions using fallback values: {result[2]}\n")
 

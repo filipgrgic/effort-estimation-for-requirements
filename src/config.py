@@ -1,8 +1,15 @@
 import os
 
-MODEL_PATH = "/share/e12324225/models/Qwen3-14B-GGUF/Qwen3-14B-Q5_K_M.gguf"
+MODEL_PATH = os.environ.get(
+    "MODEL_PATH",
+    "models/Qwen3-14B-Q5_K_M.gguf",
+)
+
 CONTEXT_SIZE = 8192
+
+# Use the number of CPUs assigned by SLURM, or 4 threads otherwise.
 THREADS = int(os.environ.get("SLURM_CPUS_PER_TASK", "4"))
+
 GPU_LAYERS = -1
 TEMPERATURE = 0.0
 MAX_TOKENS = 2048

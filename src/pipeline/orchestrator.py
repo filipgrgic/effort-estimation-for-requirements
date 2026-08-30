@@ -37,7 +37,7 @@ def run_pipeline(text: str, sloc_factor: float) -> tuple[float, int, int]:
 
     ufp, fallback_count = estimate_size(normalized_reqs)
 
-    text_reqs = json.dumps([req.model_dump() for req in reqs], indent=2)
+    text_reqs = json.dumps([req.model_dump() for req in normalized_reqs], indent=2)
 
     brak_percentage = estimate_breakage(text_reqs)
     if brak_percentage < 0 or brak_percentage > 100:
