@@ -366,26 +366,46 @@ pytest
    
    The model may produce incorrect, inconsistent, or hallucinated classifications and estimations.
 
-4. **Limited context window**
-   
-   Large requirement documents must be split into chunks, which can cause relevant context to be lost.
-
-5. **Chunking effects**
+4. **Chunking effects**
     
    Related requirements may be separated into different chunks, making dependencies or duplicates harder to detect.
 
-6. **Requirement merging and normalization**
+5. **Requirement merging and normalization**
     
    Similar requirements may be merged incorrectly, while duplicates may remain undetected.
 
-7. **Fixed COCOMO II parameters**
+6. **Fixed COCOMO II parameters**
     
    Some COCOMO II scale and cost drivers are set to `Nominal` because they cannot be reliably derived from requirements alone.
 
-8. **Missing team and organizational information**
+7. **Missing team and organizational information**
     
    Developer experience, team capabilities, tool support, and organizational processes cannot be fully inferred from initial software requirements and are therefore only partially represented by the estimation.
 
-9. **Heuristic AI reduction factor**
+8. **Heuristic AI reduction factor**
     
    The AI reduction factor is not an established part of COCOMO II and is not based on extensive empirical calibration. Since it directly affects the final effort estimate, different factor values can significantly change the result.
+
+## 12. References
+
+* COCOMO II and Function Point Analysis:
+
+    - Center for Software Engineering, University of Southern California (1998).  
+      *COCOMO II Model Definition Manual*, USC COCOMO II.1998.0.  
+      https://athena.ecs.csus.edu/~buckley/CSc231_files/Cocomo_II_Manual.pdf
+
+    - Center for Software Engineering, University of Southern California (2000).  
+      *COCOMO II Model Definition Manual*, Version 2.1.  
+      https://www.rose-hulman.edu/class/cs/csse372/201310/Homework/CII_modelman2000.pdf
+
+* SLOC/UFP conversion factors:
+
+    - https://www.qsm.com/resources/function-point-languages-table
+
+* Qwen3-14B-GGUF:
+
+    - https://huggingface.co/Qwen/Qwen3-14B-GGUF
+
+* llama-cpp-python:
+
+    - https://github.com/abetlen/llama-cpp-python
