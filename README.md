@@ -145,10 +145,6 @@ The main configuration parameters can be found in `src/config.py`.
     export MODEL_PATH="/path/to/model.gguf"
     ```
 
-* `CONTEXT_SIZE`
-
-  - Maximum context size used by the language model.
-
 * `THREADS`
 
   - Number of CPU threads used for inference.
@@ -165,9 +161,22 @@ The main configuration parameters can be found in `src/config.py`.
   - Controls the randomness of the model output.
   - A value of `0.0` is used to make the output as deterministic as possible.
 
+* `CONTEXT_SIZE`
+
+  - Maximum context size used by the language model.
+
 * `MAX_TOKENS = 2048`
 
   - Maximum number of tokens the model can generate for a single response.
+
+### Context and Output Size
+
+If the model reports that the prompt or input exceeds the available context size, increase `CONTEXT_SIZE`.
+
+If model responses are truncated or incomplete, increase `MAX_TOKENS`.
+
+Keep in mind that the model's context window must accommodate both the input and the generated output. Therefore, larger values may also increase memory usage.
+
 
 ### Chunking Configuration
 
@@ -192,6 +201,14 @@ The input file must be located at:
 
 `src/data/input.txt`
 
+For best results:
+
+* Separate individual requirements with a blank line.
+* Describe the required functionality as clearly and in as much detail as possible.
+* Prefer concrete functional requirements over broad or high-level project descriptions.
+* Clearly distinguish different user interactions, system functions, inputs, outputs, and data entities where applicable.
+
+More detailed requirements generally allow the estimation pipeline to identify software functions and their interactions more accurately. Very high-level or incomplete requirements may therefore lead to less precise effort estimates.
 
 ## 7. Running the Application
 
@@ -370,7 +387,7 @@ pytest
     
    Related requirements may be separated into different chunks, making dependencies or duplicates harder to detect.
 
-5. **Requirement merging and normalization**
+5. **Requirement merging**
     
    Similar requirements may be merged incorrectly, while duplicates may remain undetected.
 
